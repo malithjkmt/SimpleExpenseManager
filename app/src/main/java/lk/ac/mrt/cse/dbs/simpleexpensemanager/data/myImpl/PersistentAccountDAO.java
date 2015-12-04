@@ -71,34 +71,44 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
     @Override
     public List<String> getAccountNumbersList() {
 
+        try {
+            ArrayList<String> array_list = new ArrayList<String>();
 
-        ArrayList<String> array_list = new ArrayList<String>();
+            //hp = new HashMap();
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("select * from account", null);
+            res.moveToFirst();
 
-        //hp = new HashMap();
-        SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from account", null );
-        res.moveToFirst();
-
-        while(res.isAfterLast() == false){
-            array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
-            res.moveToNext();
+            while (res.isAfterLast() == false) {
+                array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
+                res.moveToNext();
+            }
+            return array_list;
         }
-        return array_list;
-
+        catch (SQLiteException ex){
+            System.out.println("error in getAccountNumbersList() method in PersistentAccountDAO");
+        }
+        return null;
     }
 
     @Override
     public List<Account> getAccountsList() {
         ArrayList<Account> array_list = new ArrayList<Account>();
+    try {
 
         SQLiteDatabase db = this.getReadableDatabase();
-        Cursor res =  db.rawQuery( "select * from account", null );
+        Cursor res = db.rawQuery("select * from account", null);
         res.moveToFirst();
 
-        while(res.isAfterLast() == false){
+        while (res.isAfterLast() == false) {
             array_list.add(convertResultSetToAccount(res));
         }
         return array_list;
+    }
+    catch (SQLiteException ex){
+        System.out.println("error in getAccountList() method in PersistentAccountDAO");
+    }
+        return null;
     }
 
 
