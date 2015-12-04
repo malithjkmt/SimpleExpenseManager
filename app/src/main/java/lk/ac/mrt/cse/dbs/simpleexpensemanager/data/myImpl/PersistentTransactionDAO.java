@@ -39,7 +39,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
  * This is an In-Memory implementation of TransactionDAO interface. This is not a persistent storage. All the
  * transaction logs are stored in a LinkedList in memory.
  */
-public class PersistentTransactionDAO extends SQLiteOpenHelper implements TransactionDAO {
+public class PersistentTransactionDAO  implements TransactionDAO {
 
 
     public static final String DATABASE_NAME = "ExpenseManager.db";
@@ -49,9 +49,8 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
     public static final String ACCOUNT_COLUMN_EXPENSE_TYPE = "expenseType";
     public static final String ACCOUNT_COLUMN_AMOUNT = "amount";
 
-    public PersistentTransactionDAO(Context context) {
+    public PersistentTransactionDAO() {
         super(context, DATABASE_NAME , null, 1);
-
     }
 
     @Override

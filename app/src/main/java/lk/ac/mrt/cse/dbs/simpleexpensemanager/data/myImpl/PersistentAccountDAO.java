@@ -30,6 +30,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
@@ -39,34 +40,18 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
  * This is an In-Memory implementation of the AccountDAO interface. This is not a persistent storage. A HashMap is
  * used to store the account details temporarily in the memory.
  */
-public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO{
+public class PersistentAccountDAO  implements AccountDAO{
 
-    public static final String DATABASE_NAME = "ExpenseManager.db";
-    public static final String ACCOUNT_TABLE_NAME = "account";
     public static final String ACCOUNT_COLUMN_ACCOUNT_NO = "accountNo";
     public static final String ACCOUNT_COLUMN_BANK_NAME = "bankName";
     public static final String ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME = "accountHolderName";
     public static final String ACCOUNT_COLUMN_BALANCE = "balance";
 
-    public PersistentAccountDAO(Context context) {
-        super(context, DATABASE_NAME , null, 1);
+    DbHelper dbHelper;
 
+    public PersistentAccountDAO(DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
-
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(
-                "create table account " +
-                        "(accountNo text primary key, bankName text,accountHolderName text,balance real)"
-        );
-    }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS account");
-        onCreate(db);
-    }
-
 
     @Override
     public List<String> getAccountNumbersList() {
@@ -75,7 +60,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
             ArrayList<String> array_list = new ArrayList<String>();
 
             //hp = new HashMap();
-            SQLiteDatabase db = this.getReadableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor res = db.rawQuery("select * from account", null);
             res.moveToFirst();
 
@@ -96,7 +81,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
         ArrayList<Account> array_list = new ArrayList<Account>();
     try {
 
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor res = db.rawQuery("select * from account", null);
         res.moveToFirst();
 
@@ -118,7 +103,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
 
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor res = db.rawQuery("select * from account where id=" + accountNo + "", null);
             res.moveToFirst();
 
@@ -135,7 +120,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
     @Override
     public void addAccount(Account account) {
        try {
-           SQLiteDatabase db = this.getWritableDatabase();
+           SQLiteDatabase db = dbHelper.getWritableDatabase();
            ContentValues contentValues = new ContentValues();
 
            contentValues.put("accountNo", account.getAccountNo());
@@ -156,7 +141,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
 
       try {
 
-            SQLiteDatabase db = this.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
             db.delete("account",
                     "accountNo = ? ",
                     new String[]{accountNo});
@@ -184,7 +169,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
                     break;
             }
 
-            SQLiteDatabase db = this.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
 
             contentValues.put("accountNo", account.getAccountNo());
