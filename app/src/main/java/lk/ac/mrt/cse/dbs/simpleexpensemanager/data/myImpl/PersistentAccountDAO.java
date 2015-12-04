@@ -40,7 +40,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
  * used to store the account details temporarily in the memory.
  */
 public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO{
-    private final Map<String, Account> accounts;
+
     public static final String DATABASE_NAME = "ExpenseManager.db";
     public static final String ACCOUNT_TABLE_NAME = "account";
     public static final String ACCOUNT_COLUMN_ACCOUNT_NO = "accountNo";
@@ -50,14 +50,14 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
 
     public PersistentAccountDAO(Context context) {
         super(context, DATABASE_NAME , null, 1);
-        this.accounts = new HashMap<>();
+
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "create table account " +
-                        "(accountNo integer primary key, bankName text,accountHolderName text,balance real)"
+                        "(accountNo text primary key, bankName text,accountHolderName text,balance real)"
         );
     }
 
@@ -115,12 +115,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
 
     @Override
     public Account getAccount(String accountNo){
-       /* if (accounts.containsKey(accountNo)) {
-            return accounts.get(accountNo);
-        }
-        String msg = "Account " + accountNo + " is invalid.";
-        throw new InvalidAccountException(msg);
-*/
+
         try {
 
             SQLiteDatabase db = this.getReadableDatabase();

@@ -22,7 +22,11 @@ import java.util.Date;
  * This POJO holds the information regarding a single transaction.
  */
 public class Transaction {
+
+    private String accountNo;
     private Date date;
+    private ExpenseType expenseType;
+    private double amount;
 
     public Date getDate() {
         return date;
@@ -56,9 +60,7 @@ public class Transaction {
         this.amount = amount;
     }
 
-    private String accountNo;
-    private ExpenseType expenseType;
-    private double amount;
+
 
     public Transaction(Date date, String accountNo,
                        ExpenseType expenseType, double amount) {
