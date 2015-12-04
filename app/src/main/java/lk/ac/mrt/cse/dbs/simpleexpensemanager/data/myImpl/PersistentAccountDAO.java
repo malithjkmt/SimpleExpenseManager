@@ -16,6 +16,7 @@
 
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -85,6 +86,15 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
     @Override
     public void addAccount(Account account) {
         accounts.put(account.getAccountNo(), account);
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("accountNo", account.getAccountNo());
+        contentValues.put("bankName", account.getBankName());
+        contentValues.put("accountHolderName", account.getAccountHolderName());
+        contentValues.put("balance", account.getBalance());
+
+        db.insert("account", null, contentValues);
+
     }
 
     @Override
