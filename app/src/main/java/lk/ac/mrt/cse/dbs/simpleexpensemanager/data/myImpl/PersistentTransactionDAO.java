@@ -90,7 +90,7 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
 
     @Override
     public List<Transaction> getAllTransactionLogs() {
-        ArrayList<Account> array_list = new ArrayList<Account>();
+        ArrayList<Transaction> array_list = new ArrayList<Transaction>();
         try {
 
             SQLiteDatabase db = this.getReadableDatabase();
@@ -98,31 +98,30 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
             res.moveToFirst();
 
             while (res.isAfterLast() == false) {
-                array_list.add(convertResultSetToAccount(res));
+                array_list.add(convertResultSetToTransaction(res));
             }
             return array_list;
         }
         catch (SQLiteException ex){
-            System.out.println("error in getAccountList() method in PersistentAccountDAO");
+            System.out.println("error in getAllTransactionLogs() method in PersistentTransactionDAO");
         }
         return null;
     }
 
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
-        int size = transactions.size();
-        if (size <= limit) {
-            return transactions;
-        }
-        // return the last <code>limit</code> number of transaction logs
-        return transactions.subList(size - limit, size);
+
+
     }
-    private Account convertResultSetToTransaction (Cursor res){
+
+
+
+    private Transaction convertResultSetToTransaction (Cursor res){
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
-            Account tempTransaction = new Transaction(dateFormat.parse(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_DATE))), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_EXPENSE_TYPE)), res.getDouble(res.getColumnIndex(ACCOUNT_COLUMN_AMOUNT)));
+            Transaction tempTransaction = new Transaction(dateFormat.parse(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_DATE))), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_EXPENSE_TYPE))), res.getDouble(res.getColumnIndex(ACCOUNT_COLUMN_AMOUNT)));
             return tempTransaction;
         } catch (ParseException e) {
             e.printStackTrace();
