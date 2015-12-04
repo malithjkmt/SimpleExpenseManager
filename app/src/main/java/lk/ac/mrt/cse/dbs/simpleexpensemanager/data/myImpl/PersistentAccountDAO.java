@@ -16,6 +16,10 @@
 
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
+import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteOpenHelper;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +34,34 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
  * This is an In-Memory implementation of the AccountDAO interface. This is not a persistent storage. A HashMap is
  * used to store the account details temporarily in the memory.
  */
-public class InMemoryAccountDAO implements AccountDAO {
+public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO{
     private final Map<String, Account> accounts;
+    public static final String DATABASE_NAME = "ExpenseManager.db";
+    public static final String ACCOUNT_TABLE_NAME = "account";
+    public static final String ACCOUNT_COLUMN_ACCOUNT_NO = "accountNo";
+    public static final String ACCOUNT_COLUMN_BANK_NAME = "bankName";
+    public static final String ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME = "accountHolderName";
+    public static final String ACCOUNT_COLUMN_BALANCE = "balance";
 
-    public InMemoryAccountDAO() {
+    public PersistentAccountDAO(Context context) {
+        super(context, DATABASE_NAME , null, 1);
         this.accounts = new HashMap<>();
     }
+
+    @Override
+    public void onCreate(SQLiteDatabase db) {
+        db.execSQL(
+                "create table account " +
+                        "(accountNo integer primary key, bankName text,accountHolderName text,balance numeric)"
+        );
+    }
+
+    @Override
+    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        db.execSQL("DROP TABLE IF EXISTS account");
+        onCreate(db);
+    }
+
 
     @Override
     public List<String> getAccountNumbersList() {
@@ -88,4 +114,6 @@ public class InMemoryAccountDAO implements AccountDAO {
         }
         accounts.put(accountNo, account);
     }
+
+
 }
