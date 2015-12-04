@@ -18,9 +18,13 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.view.InputDevice;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,7 +57,7 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "create table account " +
-                        "(accountNo integer primary key, bankName text,accountHolderName text,balance numeric)"
+                        "(accountNo integer primary key, bankName text,accountHolderName text,balance real)"
         );
     }
 
@@ -66,63 +70,133 @@ public class PersistentAccountDAO extends SQLiteOpenHelper implements AccountDAO
 
     @Override
     public List<String> getAccountNumbersList() {
-        return new ArrayList<>(accounts.keySet());
+
+
+        ArrayList<String> array_list = new ArrayList<String>();
+
+        //hp = new HashMap();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res =  db.rawQuery( "select * from account", null );
+        res.moveToFirst();
+
+        while(res.isAfterLast() == false){
+            array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
+            res.moveToNext();
+        }
+        return array_list;
+
     }
 
     @Override
     public List<Account> getAccountsList() {
-        return new ArrayList<>(accounts.values());
+        ArrayList<Account> array_list = new ArrayList<Account>();
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor res =  db.rawQuery( "select * from account", null );
+        res.moveToFirst();
+
+        while(res.isAfterLast() == false){
+            array_list.add(convertResultSetToAccount(res));
+        }
+        return array_list;
     }
 
+
+
     @Override
-    public Account getAccount(String accountNo) throws InvalidAccountException {
-        if (accounts.containsKey(accountNo)) {
+    public Account getAccount(String accountNo){
+       /* if (accounts.containsKey(accountNo)) {
             return accounts.get(accountNo);
         }
         String msg = "Account " + accountNo + " is invalid.";
         throw new InvalidAccountException(msg);
+*/
+        try {
+
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("select * from account where id=" + accountNo + "", null);
+            res.moveToFirst();
+
+            Account tempAccount = convertResultSetToAccount(res);
+
+            return tempAccount;
+        }
+        catch (SQLiteException e) {
+            System.out.println("error in getAccount() method in PersistentAccountDAO");
+        }
+        return null;
     }
 
     @Override
     public void addAccount(Account account) {
-        accounts.put(account.getAccountNo(), account);
-        SQLiteDatabase db = this.getWritableDatabase();
-        ContentValues contentValues = new ContentValues();
-        contentValues.put("accountNo", account.getAccountNo());
-        contentValues.put("bankName", account.getBankName());
-        contentValues.put("accountHolderName", account.getAccountHolderName());
-        contentValues.put("balance", account.getBalance());
+       try {
+           SQLiteDatabase db = this.getWritableDatabase();
+           ContentValues contentValues = new ContentValues();
 
-        db.insert("account", null, contentValues);
+           contentValues.put("accountNo", account.getAccountNo());
+           contentValues.put("bankName", account.getBankName());
+           contentValues.put("accountHolderName", account.getAccountHolderName());
+           contentValues.put("balance", account.getBalance());
+
+           db.insert("account", null, contentValues);
+       }
+       catch (SQLiteException ex){
+           System.out.println("error in addAccount() method in PersistentAccountDAO");
+       }
 
     }
 
     @Override
     public void removeAccount(String accountNo) throws InvalidAccountException {
-        if (!accounts.containsKey(accountNo)) {
-            String msg = "Account " + accountNo + " is invalid.";
-            throw new InvalidAccountException(msg);
+
+      try {
+
+            SQLiteDatabase db = this.getWritableDatabase();
+            db.delete("account",
+                    "accountNo = ? ",
+                    new String[]{accountNo});
         }
-        accounts.remove(accountNo);
+        catch (SQLiteException e){
+            System.out.println("error in removeAccount() method in PersistentAccountDAO");
+        }
+
+
     }
 
     @Override
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
-        if (!accounts.containsKey(accountNo)) {
-            String msg = "Account " + accountNo + " is invalid.";
-            throw new InvalidAccountException(msg);
+
+        try {
+            Account account = getAccount(accountNo);
+
+            // specific implementation based on the transaction type
+            switch (expenseType) {
+                case EXPENSE:
+                    account.setBalance(account.getBalance() - amount);
+                    break;
+                case INCOME:
+                    account.setBalance(account.getBalance() + amount);
+                    break;
+            }
+
+            SQLiteDatabase db = this.getWritableDatabase();
+            ContentValues contentValues = new ContentValues();
+
+            contentValues.put("accountNo", account.getAccountNo());
+            contentValues.put("bankName", account.getBankName());
+            contentValues.put("accountHolderName", account.getAccountHolderName());
+            contentValues.put("balance", account.getBalance());
+
+            db.update("account", contentValues, "accountNo = ? ", new String[]{accountNo});
         }
-        Account account = accounts.get(accountNo);
-        // specific implementation based on the transaction type
-        switch (expenseType) {
-            case EXPENSE:
-                account.setBalance(account.getBalance() - amount);
-                break;
-            case INCOME:
-                account.setBalance(account.getBalance() + amount);
-                break;
+        catch (SQLiteException ex){
+            System.out.println("error in updateBalance() method in PersistentAccountDAO");
         }
-        accounts.put(accountNo, account);
+    }
+
+    private Account convertResultSetToAccount (Cursor res){
+        Account tempAccount = new Account(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_BANK_NAME)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME)), res.getColumnIndex(ACCOUNT_COLUMN_BALANCE));
+        return tempAccount;
     }
 
 
