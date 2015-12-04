@@ -17,6 +17,7 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
@@ -40,7 +41,6 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
  */
 public class PersistentTransactionDAO extends SQLiteOpenHelper implements TransactionDAO {
 
-    private final List<Transaction> transactions;
 
     public static final String DATABASE_NAME = "ExpenseManager.db";
     public static final String ACCOUNT_TABLE_NAME = "transaction";
@@ -49,9 +49,9 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
     public static final String ACCOUNT_COLUMN_EXPENSE_TYPE = "expenseType";
     public static final String ACCOUNT_COLUMN_AMOUNT = "amount";
 
-    public PersistentTransactionDAO() {
+    public PersistentTransactionDAO(Context context) {
         super(context, DATABASE_NAME , null, 1);
-        transactions = new LinkedList<>();
+
     }
 
     @Override
@@ -90,14 +90,14 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
 
     @Override
     public List<Transaction> getAllTransactionLogs() {
-        ArrayList<Transaction> array_list = new ArrayList<Transaction>();
+        ArrayList<Transaction> array_list = new ArrayList<>();
         try {
 
             SQLiteDatabase db = this.getReadableDatabase();
             Cursor res = db.rawQuery("select * from transaction", null);
             res.moveToFirst();
 
-            while (res.isAfterLast() == false) {
+            while (!res.isAfterLast()) {
                 array_list.add(convertResultSetToTransaction(res));
             }
             return array_list;
@@ -110,7 +110,22 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
 
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
+        ArrayList<Transaction> array_list = new ArrayList<>();
+        try {
 
+            SQLiteDatabase db = this.getReadableDatabase();
+            Cursor res = db.rawQuery("select * from transaction ORDER BY accountNo LIMIT" + Integer.toString(limit), null);
+            res.moveToFirst();
+
+            while (!res.isAfterLast()) {
+                array_list.add(convertResultSetToTransaction(res));
+            }
+            return array_list;
+        }
+        catch (SQLiteException ex){
+            System.out.println("error in getPaginatedTransactionLogs() method in PersistentTransactionDAO");
+        }
+        return null;
 
     }
 
@@ -121,8 +136,8 @@ public class PersistentTransactionDAO extends SQLiteOpenHelper implements Transa
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
-            Transaction tempTransaction = new Transaction(dateFormat.parse(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_DATE))), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_EXPENSE_TYPE))), res.getDouble(res.getColumnIndex(ACCOUNT_COLUMN_AMOUNT)));
-            return tempTransaction;
+            return new Transaction(dateFormat.parse(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_DATE))), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_EXPENSE_TYPE))), res.getDouble(res.getColumnIndex(ACCOUNT_COLUMN_AMOUNT)));
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
