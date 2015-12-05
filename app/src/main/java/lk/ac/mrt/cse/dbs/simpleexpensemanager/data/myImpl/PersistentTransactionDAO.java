@@ -101,7 +101,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
         try {
 
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor res = db.rawQuery("select * from transaction ORDER BY accountNo LIMIT" + Integer.toString(limit), null);
+            Cursor res = db.rawQuery("select * from transaction ORDER BY accountNo LIMIT " + Integer.toString(limit), null);
             res.moveToFirst();
 
             while (!res.isAfterLast()) {
