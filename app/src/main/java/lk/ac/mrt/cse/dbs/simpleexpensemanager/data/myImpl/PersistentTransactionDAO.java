@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
@@ -49,30 +50,17 @@ public class PersistentTransactionDAO  implements TransactionDAO {
     public static final String ACCOUNT_COLUMN_EXPENSE_TYPE = "expenseType";
     public static final String ACCOUNT_COLUMN_AMOUNT = "amount";
 
-    public PersistentTransactionDAO() {
-        super(context, DATABASE_NAME , null, 1);
-    }
+    DbHelper dbHelper;
 
-    @Override
-    public void onCreate(SQLiteDatabase db) {
-        db.execSQL(
-                "create table transaction " +
-                        "(accountNo text primary key, date numeric, expenseType text,amount real)"
-        );
+    public PersistentTransactionDAO( DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
-
-    @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("DROP TABLE IF EXISTS transaction");
-        onCreate(db);
-    }
-
 
     @Override
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
 
         try {
-            SQLiteDatabase db = this.getWritableDatabase();
+            SQLiteDatabase db = dbHelper.getWritableDatabase();
             ContentValues contentValues = new ContentValues();
 
             contentValues.put("accountNo", accountNo);
@@ -80,10 +68,10 @@ public class PersistentTransactionDAO  implements TransactionDAO {
             contentValues.put("expenseType", expenseType.toString() );
             contentValues.put("amount", amount );
 
-            db.insert("account", null, contentValues);
+            db.insert("transaction", null, contentValues);
         }
         catch (SQLiteException ex){
-            System.out.println("error in logTransaction() method in PersistentTransactionDAO");
+            System.out.println("error in logTransaction() method in PersistentTransactionDAO"+ ex.toString());
         }
     }
 
@@ -92,7 +80,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
         ArrayList<Transaction> array_list = new ArrayList<>();
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor res = db.rawQuery("select * from transaction", null);
             res.moveToFirst();
 
@@ -102,7 +90,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
             return array_list;
         }
         catch (SQLiteException ex){
-            System.out.println("error in getAllTransactionLogs() method in PersistentTransactionDAO");
+            System.out.println("error in getAllTransactionLogs() method in PersistentTransactionDAO"+ ex.toString());
         }
         return null;
     }
@@ -112,7 +100,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
         ArrayList<Transaction> array_list = new ArrayList<>();
         try {
 
-            SQLiteDatabase db = this.getReadableDatabase();
+            SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor res = db.rawQuery("select * from transaction ORDER BY accountNo LIMIT" + Integer.toString(limit), null);
             res.moveToFirst();
 
@@ -122,7 +110,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
             return array_list;
         }
         catch (SQLiteException ex){
-            System.out.println("error in getPaginatedTransactionLogs() method in PersistentTransactionDAO");
+            System.out.println("error in getPaginatedTransactionLogs() method in PersistentTransactionDAO"+ ex.toString());
         }
         return null;
 

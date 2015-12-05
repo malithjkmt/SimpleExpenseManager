@@ -57,14 +57,14 @@ public class PersistentAccountDAO  implements AccountDAO{
     public List<String> getAccountNumbersList() {
 
         try {
-            ArrayList<String> array_list = new ArrayList<String>();
+            ArrayList<String> array_list = new ArrayList<>();
 
             //hp = new HashMap();
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor res = db.rawQuery("select * from account", null);
             res.moveToFirst();
 
-            while (res.isAfterLast() == false) {
+            while (!res.isAfterLast()) {
                 array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
                 res.moveToNext();
             }
@@ -78,14 +78,14 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     @Override
     public List<Account> getAccountsList() {
-        ArrayList<Account> array_list = new ArrayList<Account>();
+        ArrayList<Account> array_list = new ArrayList<>();
     try {
 
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor res = db.rawQuery("select * from account", null);
         res.moveToFirst();
 
-        while (res.isAfterLast() == false) {
+        while (!res.isAfterLast()) {
             array_list.add(convertResultSetToAccount(res));
         }
         return array_list;
@@ -107,9 +107,9 @@ public class PersistentAccountDAO  implements AccountDAO{
             Cursor res = db.rawQuery("select * from account where id=" + accountNo + "", null);
             res.moveToFirst();
 
-            Account tempAccount = convertResultSetToAccount(res);
+           return convertResultSetToAccount(res);
 
-            return tempAccount;
+
         }
         catch (SQLiteException e) {
             System.out.println("error in getAccount() method in PersistentAccountDAO");
@@ -131,7 +131,7 @@ public class PersistentAccountDAO  implements AccountDAO{
            db.insert("account", null, contentValues);
        }
        catch (SQLiteException ex){
-           System.out.println("error in addAccount() method in PersistentAccountDAO");
+           System.out.println("error in addAccount() method in PersistentAccountDAO" + ex.toString());
        }
 
     }
@@ -147,7 +147,7 @@ public class PersistentAccountDAO  implements AccountDAO{
                     new String[]{accountNo});
         }
         catch (SQLiteException e){
-            System.out.println("error in removeAccount() method in PersistentAccountDAO");
+            System.out.println("error in removeAccount() method in PersistentAccountDAO"+ e.toString());
         }
 
 
@@ -180,13 +180,13 @@ public class PersistentAccountDAO  implements AccountDAO{
             db.update("account", contentValues, "accountNo = ? ", new String[]{accountNo});
         }
         catch (SQLiteException ex){
-            System.out.println("error in updateBalance() method in PersistentAccountDAO");
+            System.out.println("error in updateBalance() method in PersistentAccountDAO"+ ex.toString());
         }
     }
 
     private Account convertResultSetToAccount (Cursor res){
-        Account tempAccount = new Account(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_BANK_NAME)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME)), res.getColumnIndex(ACCOUNT_COLUMN_BALANCE));
-        return tempAccount;
+        return new Account(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_BANK_NAME)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME)), res.getColumnIndex(ACCOUNT_COLUMN_BALANCE));
+
     }
 
 

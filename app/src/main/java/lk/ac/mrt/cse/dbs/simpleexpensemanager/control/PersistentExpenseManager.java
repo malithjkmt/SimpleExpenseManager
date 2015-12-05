@@ -35,8 +35,9 @@ public class PersistentExpenseManager extends ExpenseManager {
 
     Context context;
     public PersistentExpenseManager(Context context) {
-        setup();
         this.context = context;
+        setup();
+
     }
 
     @Override
