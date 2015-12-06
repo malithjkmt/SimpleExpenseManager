@@ -14,7 +14,7 @@ public class DbHelper extends SQLiteOpenHelper {
     // Database Version
     private static final int DATABASE_VERSION = 1;
     // Database Name
-    public static final String DATABASE_NAME = "ExpenseManager.db";
+    public static final String DATABASE_NAME = "ExpenseManager";
 
     public DbHelper(Context context) {
 

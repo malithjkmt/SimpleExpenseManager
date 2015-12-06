@@ -60,27 +60,29 @@ public class PersistentExpenseManager extends ExpenseManager {
         AccountDAO persistentAccountDAO = new PersistentAccountDAO(context);
         setAccountsDAO(persistentAccountDAO);
 
-        // dummy data
-        Account dummyAcct1 = new Account("12345A", "Yoda Bank", "Anakin Skywalker", 10000.0);
-        Account dummyAcct2 = new Account("78945Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
+        // dummy data for debugging
+            Account dummyAcct1 = new Account("12345A", "Yoda Bank", "Anakin Skywalker", 10000.0);
+            Account dummyAcct2 = new Account("78945Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
 
-        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
-        Date date = new Date();
+            DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+            Date date = new Date();
 
 
-        getAccountsDAO().addAccount(dummyAcct1);
-        getAccountsDAO().addAccount(dummyAcct2);
+            getAccountsDAO().addAccount(dummyAcct1);
+            getAccountsDAO().addAccount(dummyAcct2);
 
-        getTransactionsDAO().logTransaction(date, "123", ExpenseType.INCOME, 24.2);
-        getTransactionsDAO().logTransaction(date, "124", ExpenseType.INCOME, 254.2);
+            getTransactionsDAO().logTransaction(date, "123", ExpenseType.INCOME, 24.2);
+            getTransactionsDAO().logTransaction(date, "124", ExpenseType.INCOME, 254.2);
 
-        try {
-            Account tempAC =  getAccountsDAO().getAccount("12345A");
-            Transaction tempTR = getTransactionsDAO().getPaginatedTransactionLogs(10).get(0);
+            // place a breakpoint here... 
+            try {
+                Account tempAC =  getAccountsDAO().getAccount("12345A");
+                Transaction tempTR = getTransactionsDAO().getPaginatedTransactionLogs(10).get(0);
 
-        } catch (InvalidAccountException e) {
-            e.printStackTrace();
-        }
+            } catch (InvalidAccountException e) {
+                e.printStackTrace();
+            }
+
         /*** End ***/
     }
 }
