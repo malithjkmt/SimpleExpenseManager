@@ -110,10 +110,13 @@ public class PersistentAccountDAO  implements AccountDAO{
         }
         //for logging
         Log.d("getAccountsList()", array_list.toString());
+
         // close the Cursor
         cursor.close();
+
         // close db
         db.close();
+
         // return Accounts  list
         return array_list;
     }
@@ -180,6 +183,7 @@ public class PersistentAccountDAO  implements AccountDAO{
 
            // 2. create ContentValues to add key "column"/value
            ContentValues contentValues = new ContentValues();
+
            contentValues.put(COLUMN_ACCOUNT_NO, account.getAccountNo());
            contentValues.put(COLUMN_BANK_NAME, account.getBankName());
            contentValues.put(COLUMN_ACCOUNT_HOLDER_NAME, account.getAccountHolderName());

@@ -26,6 +26,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryTransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
@@ -72,6 +73,14 @@ public class PersistentExpenseManager extends ExpenseManager {
 
         getTransactionsDAO().logTransaction(date, "123", ExpenseType.INCOME, 24.2);
         getTransactionsDAO().logTransaction(date, "124", ExpenseType.INCOME, 254.2);
+
+        try {
+            Account tempAC =  getAccountsDAO().getAccount("12345A");
+            Transaction tempTR = getTransactionsDAO().getPaginatedTransactionLogs(10).get(0);
+
+        } catch (InvalidAccountException e) {
+            e.printStackTrace();
+        }
         /*** End ***/
     }
 }

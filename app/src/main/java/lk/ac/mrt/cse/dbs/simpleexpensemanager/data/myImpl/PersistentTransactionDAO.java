@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -42,13 +43,14 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
  */
 public class PersistentTransactionDAO  implements TransactionDAO {
 
-
-    public static final String DATABASE_NAME = "ExpenseManager.db";
-    public static final String ACCOUNT_TABLE_NAME = "transaction";
-    public static final String ACCOUNT_COLUMN_ACCOUNT_NO = "accountNo";
-    public static final String ACCOUNT_COLUMN_DATE = "date";
-    public static final String ACCOUNT_COLUMN_EXPENSE_TYPE = "expenseType";
-    public static final String ACCOUNT_COLUMN_AMOUNT = "amount";
+    // transaction table name
+    public static final String TABLE_NAME = "transaction";
+    // transaction Table Columns names
+    public static final String COLUMN_ACCOUNT_NO = "accountNo";
+    public static final String COLUMN_DATE = "date";
+    public static final String COLUMN_EXPENSE_TYPE = "expenseType";
+    public static final String COLUMN_AMOUNT = "amount";
+    private static final String[] COLUMNS = {COLUMN_ACCOUNT_NO,COLUMN_DATE,COLUMN_EXPENSE_TYPE,COLUMN_AMOUNT};
 
     DbHelper dbHelper;
 
@@ -60,15 +62,23 @@ public class PersistentTransactionDAO  implements TransactionDAO {
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
 
         try {
+            // 1. get reference to writable DB
             SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            // 2. create ContentValues to add key "column"/value
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put("accountNo", accountNo);
-            contentValues.put("date", date.toString());
-            contentValues.put("expenseType", expenseType.toString() );
-            contentValues.put("amount", amount );
+            contentValues.put(COLUMN_ACCOUNT_NO, accountNo);
+            contentValues.put(COLUMN_DATE, date.toString());
+            contentValues.put(COLUMN_EXPENSE_TYPE, expenseType.toString() );
+            contentValues.put(COLUMN_AMOUNT, amount );
 
-            db.insert("transaction", null, contentValues);
+            // 3. insert
+            db.insert(TABLE_NAME, // table
+                    null, //nullColumnHack
+                    contentValues); // key/value -> keys = column names/ values = column values
+            // 4. close
+            db.close();
         }
         catch (SQLiteException ex){
             System.out.println("error in logTransaction() method in PersistentTransactionDAO"+ ex.toString());
@@ -78,15 +88,32 @@ public class PersistentTransactionDAO  implements TransactionDAO {
     @Override
     public List<Transaction> getAllTransactionLogs() {
         ArrayList<Transaction> array_list = new ArrayList<>();
+        
+        // 1. build the query
+        String query = "select * from " + TABLE_NAME;
+        
         try {
-
+            // 2. get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor res = db.rawQuery("select * from transaction", null);
-            res.moveToFirst();
+            Cursor cursor  = db.rawQuery(query, null);
 
-            while (!res.isAfterLast()) {
-                array_list.add(convertResultSetToTransaction(res));
+            // 3. go over each row, get the transaction and add it to list
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                array_list.add(convertResultSetToTransaction(cursor));
             }
+
+            //for logging
+            Log.d("getAllTransactionLogs()", array_list.toString());
+
+            // close the Cursor
+            cursor.close();
+
+            // close db
+            db.close();
+
+            // return Accounts  list
             return array_list;
         }
         catch (SQLiteException ex){
@@ -98,15 +125,40 @@ public class PersistentTransactionDAO  implements TransactionDAO {
     @Override
     public List<Transaction> getPaginatedTransactionLogs(int limit) {
         ArrayList<Transaction> array_list = new ArrayList<>();
+
         try {
-
+            // get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor res = db.rawQuery("select * from transaction ORDER BY accountNo LIMIT " + Integer.toString(limit), null);
-            res.moveToFirst();
 
-            while (!res.isAfterLast()) {
-                array_list.add(convertResultSetToTransaction(res));
+            // query
+            Cursor cursor =
+                    db.query(TABLE_NAME, // a. table
+                            null, // b. column names
+                            null, // c. selections
+                            null, // d. selections args
+                            null, // e. group by
+                            null, // f. having
+                            null, // g. order by
+                            String.valueOf(limit)); // h. limit
+
+
+            // go over each row, get the transaction and add it to list
+            cursor.moveToFirst();
+
+            while (!cursor.isAfterLast()) {
+                array_list.add(convertResultSetToTransaction(cursor));
             }
+
+            // for logging
+            Log.d("getPaginatedT..", array_list.toString());
+
+            // close the Cursor
+            cursor.close();
+
+            // close db
+            db.close();
+
+            // return Accounts  list
             return array_list;
         }
         catch (SQLiteException ex){
@@ -118,12 +170,12 @@ public class PersistentTransactionDAO  implements TransactionDAO {
 
 
 
-    private Transaction convertResultSetToTransaction (Cursor res){
+    private Transaction convertResultSetToTransaction (Cursor cursor){
 
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
         try {
-            return new Transaction(dateFormat.parse(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_DATE))), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_EXPENSE_TYPE))), res.getDouble(res.getColumnIndex(ACCOUNT_COLUMN_AMOUNT)));
+            return new Transaction(dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE))), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE))), cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT)));
 
         } catch (ParseException e) {
             e.printStackTrace();

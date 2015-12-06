@@ -28,6 +28,14 @@ public class Transaction {
     private ExpenseType expenseType;
     private double amount;
 
+    public Transaction(Date date, String accountNo,
+                       ExpenseType expenseType, double amount) {
+        this.date = date;
+        this.accountNo = accountNo;
+        this.expenseType = expenseType;
+        this.amount = amount;
+    }
+
     public Date getDate() {
         return date;
     }
@@ -62,11 +70,8 @@ public class Transaction {
 
 
 
-    public Transaction(Date date, String accountNo,
-                       ExpenseType expenseType, double amount) {
-        this.date = date;
-        this.accountNo = accountNo;
-        this.expenseType = expenseType;
-        this.amount = amount;
+    @Override
+    public String toString() {
+        return "Account [accountNo=" + accountNo + ", date=" + date + ", expenseType=" + expenseType + "amount="+amount + "]";
     }
 }
