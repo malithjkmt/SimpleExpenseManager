@@ -22,6 +22,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 import android.view.InputDevice;
 
 import java.sql.SQLException;
@@ -37,15 +38,19 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 
 /**
- * This is an In-Memory implementation of the AccountDAO interface. This is not a persistent storage. A HashMap is
- * used to store the account details temporarily in the memory.
+ * This is an Persistent implementation of the AccountDAO interface. Created by Malith @MSquad
  */
 public class PersistentAccountDAO  implements AccountDAO{
 
-    public static final String ACCOUNT_COLUMN_ACCOUNT_NO = "accountNo";
-    public static final String ACCOUNT_COLUMN_BANK_NAME = "bankName";
-    public static final String ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME = "accountHolderName";
-    public static final String ACCOUNT_COLUMN_BALANCE = "balance";
+    // account table name
+    private static final String TABLE_NAME = "account";
+
+    // account Table Columns names
+    private static final String COLUMN_ACCOUNT_NO = "accountNo";
+    private static final String COLUMN_BANK_NAME = "bankName";
+    private static final String COLUMN_ACCOUNT_HOLDER_NAME = "accountHolderName";
+    private static final String COLUMN_BALANCE = "balance";
+    private static final String[] COLUMNS = {COLUMN_ACCOUNT_NO,COLUMN_BANK_NAME,COLUMN_ACCOUNT_HOLDER_NAME,COLUMN_BALANCE};
 
     DbHelper dbHelper;
 
@@ -55,24 +60,34 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     @Override
     public List<String> getAccountNumbersList() {
+        ArrayList<String> array_list = new ArrayList<>();
+
+        // 1. build the query
+        String query = "select * from " + TABLE_NAME;
 
         try {
-            ArrayList<String> array_list = new ArrayList<>();
-
-            //hp = new HashMap();
+            // 2. get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor res = db.rawQuery("select * from account", null);
-            res.moveToFirst();
+            Cursor cursor= db.rawQuery(query, null);
 
-            while (!res.isAfterLast()) {
-                array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
-                res.moveToNext();
+            // 3. go over each row, get the account number and add it to list
+            cursor.moveToFirst();
+            while (!cursor.isAfterLast()) {
+                array_list.add(cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)));
+                cursor.moveToNext();
             }
-            res.close();
+            //for logging
+            Log.d("getAccountNumbersList()", array_list.toString());
+
+            // close the Cursor
+            cursor.close();
+            // close db
+            db.close();
+            // return Account numbers list
             return array_list;
         }
         catch (SQLiteException ex){
-            System.out.println("error in getAccountNumbersList() method in PersistentAccountDAO");
+            System.out.println("error in getAccountNumbersList() method in PersistentAccountDAO" + ex.toString());
         }
         return null;
     }
@@ -80,20 +95,30 @@ public class PersistentAccountDAO  implements AccountDAO{
     @Override
     public List<Account> getAccountsList() {
         ArrayList<Account> array_list = new ArrayList<>();
+        // 1. build the query
+        String query = "select * from " + TABLE_NAME;
+
     try {
-
+        // 2. get reference to readable DB
         SQLiteDatabase db = dbHelper.getReadableDatabase();
-        Cursor res = db.rawQuery("select * from account", null);
-        res.moveToFirst();
+        Cursor cursor= db.rawQuery(query, null);
 
-        while (!res.isAfterLast()) {
-            array_list.add(convertResultSetToAccount(res));
+        // 3. go over each row, get the account number and add it to list
+        cursor.moveToFirst();
+        while (!cursor.isAfterLast()) {
+            array_list.add(convertResultSetToAccount(cursor));
         }
-        res.close();
+        //for logging
+        Log.d("getAccountsList()", array_list.toString());
+        // close the Cursor
+        cursor.close();
+        // close db
+        db.close();
+        // return Accounts  list
         return array_list;
     }
     catch (SQLiteException ex){
-        System.out.println("error in getAccountList() method in PersistentAccountDAO");
+        System.out.println("error in getAccountList() method in PersistentAccountDAO "+ ex.toString());
     }
         return null;
     }
@@ -102,43 +127,75 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     @Override
     public Account getAccount(String accountNo){
-        Cursor res = null;
+
         try {
-
+            // 1. get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            res = db.rawQuery("select * from account where id=" + accountNo + "", null);
-            res.moveToFirst();
+            // 2. query
+            Cursor cursor =
+                    db.query(TABLE_NAME, // a. table
+                            COLUMNS, // b. column names
+                            " id = ?", // c. selections
+                            new String[]{String.valueOf(accountNo)}, // d. selections args
+                            null, // e. group by
+                            null, // f. having
+                            null, // g. order by
+                            null); // h. limit
 
-           return convertResultSetToAccount(res);
+            if (cursor != null)
+                cursor.moveToFirst();
+
+            // build account object
+            Account account = convertResultSetToAccount(cursor);
+
+            // log
+            Log.d("getAccount(" + accountNo + ")", account.toString());
+
+            // close the Cursor
+            cursor.close();
+
+            // close db
+            db.close();
+
+            // return account
+           return account;
 
 
         }
         catch (SQLiteException e) {
-            System.out.println("error in getAccount() method in PersistentAccountDAO");
+            System.out.println("error in getAccount() method in PersistentAccountDAO "+ e.toString());
         }
-        finally {
-            res.close();
-        }
+
         return null;
     }
 
     @Override
     public void addAccount(Account account) {
+        //for logging
+        Log.d("addAccount ", account.toString());
+
        try {
+           // 1. get reference to writable DB
            SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+           // 2. create ContentValues to add key "column"/value
            ContentValues contentValues = new ContentValues();
+           contentValues.put(COLUMN_ACCOUNT_NO, account.getAccountNo());
+           contentValues.put(COLUMN_BANK_NAME, account.getBankName());
+           contentValues.put(COLUMN_ACCOUNT_HOLDER_NAME, account.getAccountHolderName());
+           contentValues.put(COLUMN_BALANCE, account.getBalance());
 
-           contentValues.put("accountNo", account.getAccountNo());
-           contentValues.put("bankName", account.getBankName());
-           contentValues.put("accountHolderName", account.getAccountHolderName());
-           contentValues.put("balance", account.getBalance());
+           // 3. insert
+           db.insert(TABLE_NAME, // table
+                   null, //nullColumnHack
+                   contentValues); // key/value -> keys = column names/ values = column values
 
-           db.insert("account", null, contentValues);
+           // 4. close
+           db.close();
        }
        catch (SQLiteException ex){
            System.out.println("error in addAccount() method in PersistentAccountDAO" + ex.toString());
        }
-
     }
 
     @Override
@@ -146,10 +203,18 @@ public class PersistentAccountDAO  implements AccountDAO{
 
       try {
 
-            SQLiteDatabase db = dbHelper.getWritableDatabase();
-          db.delete("account",
-                  "accountNo = ? ",
-                  new String[]{accountNo});
+          // 1. get reference to writable DB
+          SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+          // 2. delete
+          db.delete(TABLE_NAME, //table name
+                  COLUMN_ACCOUNT_NO +" = ?",  // selections
+                  new String[] { String.valueOf(accountNo)}); //selections args
+          // 3. close
+          db.close();
+
+          //log
+          Log.d("removeAccount", accountNo);
         }
         catch (SQLiteException e){
             System.out.println("error in removeAccount() method in PersistentAccountDAO"+ e.toString());
@@ -162,9 +227,10 @@ public class PersistentAccountDAO  implements AccountDAO{
     public void updateBalance(String accountNo, ExpenseType expenseType, double amount) throws InvalidAccountException {
 
         try {
+            // get existing account from DB by the accountNO
             Account account = getAccount(accountNo);
 
-            // specific implementation based on the transaction type
+            // update balance based on the transaction type
             switch (expenseType) {
                 case EXPENSE:
                     account.setBalance(account.getBalance() - amount);
@@ -174,7 +240,10 @@ public class PersistentAccountDAO  implements AccountDAO{
                     break;
             }
 
+            // get reference to writable DB
             SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+            // create ContentValues to add key "column"/value
             ContentValues contentValues = new ContentValues();
 
             contentValues.put("accountNo", account.getAccountNo());
@@ -182,15 +251,25 @@ public class PersistentAccountDAO  implements AccountDAO{
             contentValues.put("accountHolderName", account.getAccountHolderName());
             contentValues.put("balance", account.getBalance());
 
-            db.update("account", contentValues, "accountNo = ? ", new String[]{accountNo});
+            // updating row
+            db.update(TABLE_NAME, //table
+                    contentValues, // column/value
+                    COLUMN_ACCOUNT_NO + " = ?", // selections
+                    new String[]{String.valueOf(accountNo)}); //selection args
+            // close
+            db.close();
+
+            //log
+            Log.d("updateBalance", account.toString());
+
         }
         catch (SQLiteException ex){
             System.out.println("error in updateBalance() method in PersistentAccountDAO"+ ex.toString());
         }
     }
 
-    private Account convertResultSetToAccount (Cursor res){
-        return new Account(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_BANK_NAME)), res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_HOLDER_NAME)), res.getColumnIndex(ACCOUNT_COLUMN_BALANCE));
+    private Account convertResultSetToAccount (Cursor cursor){
+        return new Account(cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), cursor.getString(cursor.getColumnIndex(COLUMN_BANK_NAME)), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_HOLDER_NAME)), cursor.getColumnIndex(COLUMN_BALANCE));
 
     }
 
