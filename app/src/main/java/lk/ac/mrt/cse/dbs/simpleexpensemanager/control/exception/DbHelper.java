@@ -6,15 +6,17 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.Serializable;
+
 /**
  * Created by Malith on 12/4/2015.
  */
-public class DbHelper extends SQLiteOpenHelper {
+public class DbHelper extends SQLiteOpenHelper implements  Serializable {
 
     // Database Version
     private static final int DATABASE_VERSION = 1;
     // Database Name
-    public static final String DATABASE_NAME = "db1305975L";
+    public static final String DATABASE_NAME = "1305975L";
 
     private static final String ACCOUNT_CREATE =
             "CREATE TABLE account (\n" +
@@ -27,9 +29,9 @@ public class DbHelper extends SQLiteOpenHelper {
                     "  PRIMARY KEY (accountNo)\n" +
                     ");";
     private static final String TRANSACTION_CREATE =
-            "CREATE TABLE transaction (\n" +
+            "CREATE TABLE ac_transaction (\n" +
                     "\n" +
-                    "  transactionId INTEGER AUTOINCREMENT,\n" +
+                    "  transactionId INTEGER,\n" +
                     "  accountNo TEXT NOT NULL,\n" +
                     "  date TEXT NOT NULL,\n" +
                     "  expenseType TEXT NOT NULL CHECK (expenseType =='EXPENSE' OR expenseType =='INCOME'),\n" +
@@ -37,7 +39,7 @@ public class DbHelper extends SQLiteOpenHelper {
                     "  \n" +
                     "  PRIMARY KEY (transactionId),\n" +
                     "  \n" +
-                    "  CONSTRAINT fk_transaction_account1 FOREIGN KEY (accountNo) REFERENCES account (accountNo) ON DELETE NO ACTION ON UPDATE NO ACTION\n" +
+                    "  CONSTRAINT fk_ac_transaction_account1 FOREIGN KEY (accountNo) REFERENCES account (accountNo) ON DELETE NO ACTION ON UPDATE NO ACTION\n" +
                     ");";
 
     public DbHelper(Context context) {
@@ -60,7 +62,7 @@ public class DbHelper extends SQLiteOpenHelper {
             db.execSQL(TRANSACTION_CREATE);
 
             //for logging
-            Log.d("create table ", "transaction");
+            Log.d("create table ", "ac_transaction");
         }
         catch (SQLiteException ex){
             System.out.println("error in onCreate() method in DbHelper"+ ex.toString());
@@ -75,7 +77,7 @@ public class DbHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older tables if existed
         db.execSQL("DROP TABLE IF EXISTS account");
-        db.execSQL("DROP TABLE IF EXISTS transaction");
+        db.execSQL("DROP TABLE IF EXISTS ac_transaction");
 
         // create fresh tables
         onCreate(db);

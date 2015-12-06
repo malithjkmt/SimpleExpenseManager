@@ -18,6 +18,7 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
 import android.content.Context;
 
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -35,7 +36,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl.PersistentTransactionD
 /**
  *
  */
-public class PersistentExpenseManager extends ExpenseManager {
+public class PersistentExpenseManager extends ExpenseManager implements Serializable {
 
     DbHelper dbHelper;
     public PersistentExpenseManager(Context context) {
@@ -58,7 +59,7 @@ public class PersistentExpenseManager extends ExpenseManager {
         setAccountsDAO(persistentAccountDAO);
 
         // dummy data for debugging
-            Account dummyAcct1 = new Account("123425A", "Yoda Bank", "Anakin Skywalker", 10000.0);
+     /*       Account dummyAcct1 = new Account("123425A", "Yoda Bank", "Anakin Skywalker", 10000.0);
             Account dummyAcct2 = new Account("789425Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
 
             DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
@@ -79,7 +80,7 @@ public class PersistentExpenseManager extends ExpenseManager {
             } catch (InvalidAccountException e) {
                 e.printStackTrace();
             }
-
+*/
         /*** End ***/
     }
 }

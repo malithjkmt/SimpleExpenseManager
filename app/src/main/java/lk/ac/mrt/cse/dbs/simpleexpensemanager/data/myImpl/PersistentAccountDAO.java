@@ -25,6 +25,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.view.InputDevice;
 
+import java.io.Serializable;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -40,7 +41,7 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 /**
  * This is an Persistent implementation of the AccountDAO interface. Created by Malith @MSquad
  */
-public class PersistentAccountDAO  implements AccountDAO{
+public class PersistentAccountDAO  implements AccountDAO, Serializable {
 
     // account table name
     private static final String TABLE_NAME = "account";
@@ -107,6 +108,7 @@ public class PersistentAccountDAO  implements AccountDAO{
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             array_list.add(convertResultSetToAccount(cursor));
+            cursor.moveToNext();
         }
         //for logging
         Log.d("getAccountsList()", array_list.toString());
@@ -165,7 +167,7 @@ public class PersistentAccountDAO  implements AccountDAO{
 
 
         }
-        catch (SQLiteException e) {
+        catch (SQLiteException|NullPointerException e) {
             System.out.println("error in getAccount() method in PersistentAccountDAO "+ e.toString());
         }
 

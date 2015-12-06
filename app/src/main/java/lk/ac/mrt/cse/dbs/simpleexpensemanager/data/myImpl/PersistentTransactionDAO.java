@@ -24,12 +24,14 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
@@ -41,10 +43,10 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
  * This is an In-Memory implementation of TransactionDAO interface. This is not a persistent storage. All the
  * transaction logs are stored in a LinkedList in memory.
  */
-public class PersistentTransactionDAO  implements TransactionDAO {
+public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
 
     // transaction table name
-    public static final String TABLE_NAME = "transaction";
+    public static final String TABLE_NAME = "ac_transaction";
     // transaction Table Columns names
     public static final String COLUMN_ACCOUNT_NO = "accountNo";
     public static final String COLUMN_DATE = "date";
@@ -102,6 +104,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
 
             while (!cursor.isAfterLast()) {
                 array_list.add(convertResultSetToTransaction(cursor));
+                cursor.moveToNext();
             }
 
             //for logging
@@ -147,6 +150,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
 
             while (!cursor.isAfterLast()) {
                 array_list.add(convertResultSetToTransaction(cursor));
+                cursor.moveToNext();
             }
 
             // for logging
@@ -172,7 +176,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
 
     private Transaction convertResultSetToTransaction (Cursor cursor){
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
 
         try {
             return new Transaction(dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE))), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE))), cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT)));
