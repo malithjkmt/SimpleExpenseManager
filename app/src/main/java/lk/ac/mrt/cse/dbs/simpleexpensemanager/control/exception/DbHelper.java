@@ -14,7 +14,7 @@ public class DbHelper extends SQLiteOpenHelper {
     // Database Version
     private static final int DATABASE_VERSION = 1;
     // Database Name
-    public static final String DATABASE_NAME = "db130597L";
+    public static final String DATABASE_NAME = "db1305975L";
 
     private static final String ACCOUNT_CREATE =
             "CREATE TABLE account (\n" +
@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TRANSACTION_CREATE =
             "CREATE TABLE transaction (\n" +
                     "\n" +
-                    "  transactionId INTEGER AUTOINCREMENT NOT NULL,\n" +
+                    "  transactionId INTEGER AUTOINCREMENT,\n" +
                     "  accountNo TEXT NOT NULL,\n" +
                     "  date TEXT NOT NULL,\n" +
                     "  expenseType TEXT NOT NULL CHECK (expenseType =='EXPENSE' OR expenseType =='INCOME'),\n" +

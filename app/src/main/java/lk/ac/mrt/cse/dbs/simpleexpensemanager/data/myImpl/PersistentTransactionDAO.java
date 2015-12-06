@@ -69,8 +69,8 @@ public class PersistentTransactionDAO  implements TransactionDAO {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(COLUMN_ACCOUNT_NO, accountNo);
-            contentValues.put(COLUMN_DATE, date.toString());
-            contentValues.put(COLUMN_EXPENSE_TYPE, expenseType.toString() );
+            contentValues.put(COLUMN_DATE, String.valueOf(date));
+            contentValues.put(COLUMN_EXPENSE_TYPE, String.valueOf(expenseType) );
             contentValues.put(COLUMN_AMOUNT, amount );
 
             // 3. insert
@@ -139,7 +139,7 @@ public class PersistentTransactionDAO  implements TransactionDAO {
                             null, // e. group by
                             null, // f. having
                             null, // g. order by
-                            null); // h. limit
+                            String.valueOf(limit)); // h. limit
 
 
             // go over each row, get the transaction and add it to list
