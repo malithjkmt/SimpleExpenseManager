@@ -18,6 +18,10 @@ package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
 import android.content.Context;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.ExpenseManager;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
@@ -25,6 +29,8 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.impl.InMemoryTransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl.PersistentAccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl.PersistentTransactionDAO;
 
@@ -44,20 +50,28 @@ public class PersistentExpenseManager extends ExpenseManager {
     public void setup() {
         /*** Begin generating dummy data for In-Memory implementation ***/
 
-        DbHelper dbHelper = new DbHelper(context);
 
-        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(dbHelper);
+
+        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(context);
         setTransactionsDAO(persistentTransactionDAO);
 
-        AccountDAO persistentAccountDAO = new PersistentAccountDAO(dbHelper);
+
+        AccountDAO persistentAccountDAO = new PersistentAccountDAO(context);
         setAccountsDAO(persistentAccountDAO);
 
         // dummy data
         Account dummyAcct1 = new Account("12345A", "Yoda Bank", "Anakin Skywalker", 10000.0);
         Account dummyAcct2 = new Account("78945Z", "Clone BC", "Obi-Wan Kenobi", 80000.0);
+
+        DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Date date = new Date();
+
+
         getAccountsDAO().addAccount(dummyAcct1);
         getAccountsDAO().addAccount(dummyAcct2);
 
+        getTransactionsDAO().logTransaction(date, "123", ExpenseType.INCOME, 24.2);
+        getTransactionsDAO().logTransaction(date, "124", ExpenseType.INCOME, 254.2);
         /*** End ***/
     }
 }

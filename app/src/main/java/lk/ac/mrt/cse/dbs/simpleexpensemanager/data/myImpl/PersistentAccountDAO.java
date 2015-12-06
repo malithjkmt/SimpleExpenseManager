@@ -49,8 +49,8 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     DbHelper dbHelper;
 
-    public PersistentAccountDAO(DbHelper dbHelper) {
-        this.dbHelper = dbHelper;
+    public PersistentAccountDAO(Context context) {
+        this.dbHelper = new DbHelper(context);
     }
 
     @Override
@@ -68,6 +68,7 @@ public class PersistentAccountDAO  implements AccountDAO{
                 array_list.add(res.getString(res.getColumnIndex(ACCOUNT_COLUMN_ACCOUNT_NO)));
                 res.moveToNext();
             }
+            res.close();
             return array_list;
         }
         catch (SQLiteException ex){
@@ -88,6 +89,7 @@ public class PersistentAccountDAO  implements AccountDAO{
         while (!res.isAfterLast()) {
             array_list.add(convertResultSetToAccount(res));
         }
+        res.close();
         return array_list;
     }
     catch (SQLiteException ex){
@@ -100,11 +102,11 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     @Override
     public Account getAccount(String accountNo){
-
+        Cursor res = null;
         try {
 
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            Cursor res = db.rawQuery("select * from account where id=" + accountNo + "", null);
+            res = db.rawQuery("select * from account where id=" + accountNo + "", null);
             res.moveToFirst();
 
            return convertResultSetToAccount(res);
@@ -113,6 +115,9 @@ public class PersistentAccountDAO  implements AccountDAO{
         }
         catch (SQLiteException e) {
             System.out.println("error in getAccount() method in PersistentAccountDAO");
+        }
+        finally {
+            res.close();
         }
         return null;
     }
@@ -142,9 +147,9 @@ public class PersistentAccountDAO  implements AccountDAO{
       try {
 
             SQLiteDatabase db = dbHelper.getWritableDatabase();
-            db.delete("account",
-                    "accountNo = ? ",
-                    new String[]{accountNo});
+          db.delete("account",
+                  "accountNo = ? ",
+                  new String[]{accountNo});
         }
         catch (SQLiteException e){
             System.out.println("error in removeAccount() method in PersistentAccountDAO"+ e.toString());
