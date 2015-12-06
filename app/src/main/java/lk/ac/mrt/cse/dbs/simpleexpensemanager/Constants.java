@@ -26,7 +26,7 @@ public class Constants {
     // Database Version
     public static final int DATABASE_VERSION = 1;
     // Database Name
-    public static final String DATABASE_NAME = "1305975L";
+    public static final String DATABASE_NAME = "130597L";
 
     public static final String ACCOUNT_CREATE =
             "CREATE TABLE account (\n" +
