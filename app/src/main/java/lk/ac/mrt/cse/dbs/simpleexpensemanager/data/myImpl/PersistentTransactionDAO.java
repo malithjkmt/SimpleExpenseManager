@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
@@ -40,15 +41,6 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
  * transaction logs are stored in a LinkedList in memory.
  */
 public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
-
-    // transaction table name
-    public static final String TABLE_NAME = "ac_transaction";
-    // transaction Table Columns names
-    public static final String COLUMN_ACCOUNT_NO = "accountNo";
-    public static final String COLUMN_DATE = "date";
-    public static final String COLUMN_EXPENSE_TYPE = "expenseType";
-    public static final String COLUMN_AMOUNT = "amount";
-    private static final String[] COLUMNS = {COLUMN_ACCOUNT_NO,COLUMN_DATE,COLUMN_EXPENSE_TYPE,COLUMN_AMOUNT};
 
     DbHelper dbHelper;
 
@@ -66,13 +58,13 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
             // create ContentValues to add key "column"/value
             ContentValues contentValues = new ContentValues();
 
-            contentValues.put(COLUMN_ACCOUNT_NO, accountNo);
-            contentValues.put(COLUMN_DATE, String.valueOf(date));
-            contentValues.put(COLUMN_EXPENSE_TYPE, String.valueOf(expenseType) );
-            contentValues.put(COLUMN_AMOUNT, amount );
+            contentValues.put(Constants.AC_TRANSACTION_COLUMN_ACCOUNT_NO, accountNo);
+            contentValues.put(Constants.AC_TRANSACTION_COLUMN_DATE, String.valueOf(date));
+            contentValues.put(Constants.AC_TRANSACTION_COLUMN_EXPENSE_TYPE, String.valueOf(expenseType) );
+            contentValues.put(Constants.AC_TRANSACTION_COLUMN_AMOUNT, amount );
 
             // insert
-            db.insert(TABLE_NAME, // table
+            db.insert(Constants.TABLE_AC_TRANSACTION, // table
                     null, //nullColumnHack
                     contentValues); // key/value -> keys = column names/ values = column values
             //  close
@@ -86,10 +78,10 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
     @Override
     public List<Transaction> getAllTransactionLogs() {
         ArrayList<Transaction> array_list = new ArrayList<>();
-        
+
         //  build the query
-        String query = "select * from " + TABLE_NAME;
-        
+        String query = "select * from " + Constants.TABLE_AC_TRANSACTION;
+
         try {
             //  get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
@@ -131,8 +123,8 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
 
             // query
             Cursor cursor =
-                    db.query(TABLE_NAME, // a. table
-                            COLUMNS, // b. column names
+                    db.query(Constants.TABLE_AC_TRANSACTION, // a. table
+                            Constants.AC_TRANSACTION_COLUMNS, // b. column names
                             null, // c. selections
                             null, // d. selections args
                             null, // e. group by
@@ -175,7 +167,7 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH); // important!
 
         try {
-            return new Transaction(dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE))), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE))), cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT)));
+            return new Transaction(dateFormat.parse(cursor.getString(cursor.getColumnIndex(Constants.AC_TRANSACTION_COLUMN_DATE))), cursor.getString(cursor.getColumnIndex(Constants.AC_TRANSACTION_COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(Constants.AC_TRANSACTION_COLUMN_EXPENSE_TYPE))), cursor.getDouble(cursor.getColumnIndex(Constants.AC_TRANSACTION_COLUMN_AMOUNT)));
 
         } catch (ParseException e) {
             e.printStackTrace();

@@ -8,43 +8,16 @@ import android.util.Log;
 
 import java.io.Serializable;
 
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.Constants;
+
 /**
- * Created by Malith on 12/4/2015.
+ * Created by Malith @MSquad on 12/4/2015.
  */
 public class DbHelper extends SQLiteOpenHelper implements  Serializable {
 
-    // Database Version
-    private static final int DATABASE_VERSION = 1;
-    // Database Name
-    public static final String DATABASE_NAME = "1305975L";
-
-    private static final String ACCOUNT_CREATE =
-            "CREATE TABLE account (\n" +
-                    "\n" +
-                    "  accountNo TEXT NOT NULL,\n" +
-                    "  bankName TEXT NOT NULL,\n" +
-                    "  accountHolderName TEXT NOT NULL,\n" +
-                    "  balance REAL NOT NULL CHECK (balance >= 0),\n" +
-                    "  \n" +
-                    "  PRIMARY KEY (accountNo)\n" +
-                    ");";
-    private static final String TRANSACTION_CREATE =
-            "CREATE TABLE ac_transaction (\n" +
-                    "\n" +
-                    "  transactionId INTEGER,\n" +
-                    "  accountNo TEXT NOT NULL,\n" +
-                    "  date TEXT NOT NULL,\n" +
-                    "  expenseType TEXT NOT NULL CHECK (expenseType =='EXPENSE' OR expenseType =='INCOME'),\n" +
-                    "  amount REAL NULL CHECK (amount > 0),\n" +
-                    "  \n" +
-                    "  PRIMARY KEY (transactionId),\n" +
-                    "  \n" +
-                    "  CONSTRAINT fk_ac_transaction_account1 FOREIGN KEY (accountNo) REFERENCES account (accountNo) ON DELETE NO ACTION ON UPDATE NO ACTION\n" +
-                    ");";
-
     public DbHelper(Context context) {
 
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        super(context, Constants.DATABASE_NAME, null, Constants.DATABASE_VERSION);
     }
 
     @Override
@@ -53,13 +26,13 @@ public class DbHelper extends SQLiteOpenHelper implements  Serializable {
         try {
 
             // SQL statement to create account table
-            db.execSQL(ACCOUNT_CREATE);
+            db.execSQL(Constants.ACCOUNT_CREATE);
 
             //for logging
             Log.d("create table ", "account");
 
             // SQL statement to create transaction table
-            db.execSQL(TRANSACTION_CREATE);
+            db.execSQL(Constants.TRANSACTION_CREATE);
 
             //for logging
             Log.d("create table ", "ac_transaction");
