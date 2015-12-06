@@ -14,7 +14,31 @@ public class DbHelper extends SQLiteOpenHelper {
     // Database Version
     private static final int DATABASE_VERSION = 1;
     // Database Name
-    public static final String DATABASE_NAME = "ExpenseManager";
+    public static final String DATABASE_NAME = "db130597L";
+
+    private static final String ACCOUNT_CREATE =
+            "CREATE TABLE account (\n" +
+                    "\n" +
+                    "  accountNo TEXT NOT NULL,\n" +
+                    "  bankName TEXT NOT NULL,\n" +
+                    "  accountHolderName TEXT NOT NULL,\n" +
+                    "  balance REAL NOT NULL CHECK (balance >= 0),\n" +
+                    "  \n" +
+                    "  PRIMARY KEY (accountNo)\n" +
+                    ");";
+    private static final String TRANSACTION_CREATE =
+            "CREATE TABLE transaction (\n" +
+                    "\n" +
+                    "  transactionId INTEGER NOT NULL,\n" +
+                    "  accountNo TEXT NOT NULL,\n" +
+                    "  date TEXT NOT NULL,\n" +
+                    "  expenseType TEXT NOT NULL CHECK (expenseType =='EXPENSE' OR expenseType =='INCOME'),\n" +
+                    "  amount REAL NULL CHECK (amount > 0),\n" +
+                    "  \n" +
+                    "  PRIMARY KEY (transactionId),\n" +
+                    "  \n" +
+                    "  CONSTRAINT fk_transaction_account1 FOREIGN KEY (accountNo) REFERENCES account (accountNo) ON DELETE NO ACTION ON UPDATE NO ACTION\n" +
+                    ");";
 
     public DbHelper(Context context) {
 
@@ -23,27 +47,17 @@ public class DbHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+
         try {
 
             // SQL statement to create account table
-            db.execSQL(
-                    "create table account " +
-                            "(accountNo text primary key, bankName text,accountHolderName text,balance real);"
-            );
+            db.execSQL(ACCOUNT_CREATE);
 
             //for logging
             Log.d("create table ", "account");
 
             // SQL statement to create transaction table
-            db.execSQL(
-                    "create table transaction(" +
-                            "transactionId INTEGER primary key," +
-                            " accountNo text," +
-                            " date text," +
-                            " expenseType text," +
-                            "amount real," +
-                            " FOREIGN KEY (accountNo) REFERENCES account(accountNo));"
-            );
+            db.execSQL(TRANSACTION_CREATE);
 
             //for logging
             Log.d("create table ", "transaction");

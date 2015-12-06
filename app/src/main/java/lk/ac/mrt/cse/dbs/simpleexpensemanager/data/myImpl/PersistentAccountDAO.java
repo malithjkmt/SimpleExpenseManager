@@ -54,8 +54,8 @@ public class PersistentAccountDAO  implements AccountDAO{
 
     DbHelper dbHelper;
 
-    public PersistentAccountDAO(Context context) {
-        this.dbHelper = new DbHelper(context);
+    public PersistentAccountDAO(DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     @Override

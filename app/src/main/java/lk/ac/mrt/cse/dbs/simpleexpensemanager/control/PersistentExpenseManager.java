@@ -40,9 +40,9 @@ import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl.PersistentTransactionD
  */
 public class PersistentExpenseManager extends ExpenseManager {
 
-    Context context;
+    DbHelper dbHelper;
     public PersistentExpenseManager(Context context) {
-        this.context = context;
+        this.dbHelper = new DbHelper(context);
         setup();
 
     }
@@ -53,11 +53,11 @@ public class PersistentExpenseManager extends ExpenseManager {
 
 
 
-        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(context);
+        TransactionDAO persistentTransactionDAO = new PersistentTransactionDAO(dbHelper);
         setTransactionsDAO(persistentTransactionDAO);
 
 
-        AccountDAO persistentAccountDAO = new PersistentAccountDAO(context);
+        AccountDAO persistentAccountDAO = new PersistentAccountDAO(dbHelper);
         setAccountsDAO(persistentAccountDAO);
 
         // dummy data for debugging

@@ -54,8 +54,8 @@ public class PersistentTransactionDAO  implements TransactionDAO {
 
     DbHelper dbHelper;
 
-    public PersistentTransactionDAO( Context context) {
-        this.dbHelper = new DbHelper(context);
+    public PersistentTransactionDAO( DbHelper dbHelper) {
+        this.dbHelper = dbHelper;
     }
 
     @Override
