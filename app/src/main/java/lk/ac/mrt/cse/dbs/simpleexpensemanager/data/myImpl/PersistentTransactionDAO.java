@@ -133,13 +133,13 @@ public class PersistentTransactionDAO  implements TransactionDAO {
             // query
             Cursor cursor =
                     db.query(TABLE_NAME, // a. table
-                            null, // b. column names
+                            COLUMNS, // b. column names
                             null, // c. selections
                             null, // d. selections args
                             null, // e. group by
                             null, // f. having
                             null, // g. order by
-                            String.valueOf(limit)); // h. limit
+                            null); // h. limit
 
 
             // go over each row, get the transaction and add it to list

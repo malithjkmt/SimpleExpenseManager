@@ -74,10 +74,10 @@ public class PersistentExpenseManager extends ExpenseManager {
             getTransactionsDAO().logTransaction(date, "123", ExpenseType.INCOME, 24.2);
             getTransactionsDAO().logTransaction(date, "124", ExpenseType.INCOME, 254.2);
 
-            // place a breakpoint here... 
+            // place a breakpoint here...
             try {
-                Account tempAC =  getAccountsDAO().getAccount("12345A");
-                Transaction tempTR = getTransactionsDAO().getPaginatedTransactionLogs(10).get(0);
+                 Account tempAC =  getAccountsDAO().getAccount("12345A");
+                 Transaction tempTR = getTransactionsDAO().getPaginatedTransactionLogs(10).get(0);
 
             } catch (InvalidAccountException e) {
                 e.printStackTrace();

@@ -138,7 +138,7 @@ public class PersistentAccountDAO  implements AccountDAO{
             Cursor cursor =
                     db.query(TABLE_NAME, // a. table
                             COLUMNS, // b. column names
-                            " id = ?", // c. selections
+                            COLUMN_ACCOUNT_NO +" = ?", // c. selections
                             new String[]{String.valueOf(accountNo)}, // d. selections args
                             null, // e. group by
                             null, // f. having
