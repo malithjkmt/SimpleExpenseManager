@@ -29,7 +29,7 @@ public class DbHelper extends SQLiteOpenHelper {
     private static final String TRANSACTION_CREATE =
             "CREATE TABLE transaction (\n" +
                     "\n" +
-                    "  transactionId INTEGER NOT NULL,\n" +
+                    "  transactionId INTEGER AUTOINCREMENT NOT NULL,\n" +
                     "  accountNo TEXT NOT NULL,\n" +
                     "  date TEXT NOT NULL,\n" +
                     "  expenseType TEXT NOT NULL CHECK (expenseType =='EXPENSE' OR expenseType =='INCOME'),\n" +
