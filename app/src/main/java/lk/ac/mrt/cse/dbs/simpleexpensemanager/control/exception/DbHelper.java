@@ -37,7 +37,7 @@ public class DbHelper extends SQLiteOpenHelper {
             // SQL statement to create transaction table
             db.execSQL(
                     "create table transaction " +
-                            "(accountNo text primary key, date text, expenseType text,amount real);"
+                            "(transactionId INTEGER primary key, accountNo text, date text, expenseType text,amount real, FOREIGN KEY (transactionId) REFERENCES account(accountNo));"
             );
 
             //for logging
