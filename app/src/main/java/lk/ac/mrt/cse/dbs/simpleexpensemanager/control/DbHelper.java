@@ -1,4 +1,4 @@
-package lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception;
+package lk.ac.mrt.cse.dbs.simpleexpensemanager.control;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -67,11 +67,7 @@ public class DbHelper extends SQLiteOpenHelper implements  Serializable {
         catch (SQLiteException ex){
             System.out.println("error in onCreate() method in DbHelper"+ ex.toString());
         }
-
         }
-
-
-
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

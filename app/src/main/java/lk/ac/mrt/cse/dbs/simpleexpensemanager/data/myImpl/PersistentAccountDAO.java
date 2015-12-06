@@ -17,22 +17,16 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
-import android.view.InputDevice;
 
 import java.io.Serializable;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.AccountDAO;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.exception.InvalidAccountException;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
@@ -63,21 +57,21 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
     public List<String> getAccountNumbersList() {
         ArrayList<String> array_list = new ArrayList<>();
 
-        // 1. build the query
+        // build the query
         String query = "select * from " + TABLE_NAME;
 
         try {
-            // 2. get reference to readable DB
+            //  get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor= db.rawQuery(query, null);
 
-            // 3. go over each row, get the account number and add it to list
+            // go over each row, get the account number and add it to list
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
                 array_list.add(cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)));
                 cursor.moveToNext();
             }
-            //for logging
+            // for logging
             Log.d("getAccountNumbersList()", array_list.toString());
 
             // close the Cursor
@@ -96,21 +90,21 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
     @Override
     public List<Account> getAccountsList() {
         ArrayList<Account> array_list = new ArrayList<>();
-        // 1. build the query
+        //  build the query
         String query = "select * from " + TABLE_NAME;
 
     try {
-        // 2. get reference to readable DB
+        // get reference to readable DB
         SQLiteDatabase db = dbHelper.getReadableDatabase();
         Cursor cursor= db.rawQuery(query, null);
 
-        // 3. go over each row, get the account number and add it to list
+        //  go over each row, get the account number and add it to list
         cursor.moveToFirst();
         while (!cursor.isAfterLast()) {
             array_list.add(convertResultSetToAccount(cursor));
             cursor.moveToNext();
         }
-        //for logging
+        // for logging
         Log.d("getAccountsList()", array_list.toString());
 
         // close the Cursor
@@ -134,9 +128,9 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
     public Account getAccount(String accountNo){
 
         try {
-            // 1. get reference to readable DB
+            //  get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
-            // 2. query
+            // query
             Cursor cursor =
                     db.query(TABLE_NAME, // a. table
                             COLUMNS, // b. column names
@@ -180,10 +174,10 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
         Log.d("addAccount ", account.toString());
 
        try {
-           // 1. get reference to writable DB
+           //  get reference to writable DB
            SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-           // 2. create ContentValues to add key "column"/value
+           //  create ContentValues to add key "column"/value
            ContentValues contentValues = new ContentValues();
 
            contentValues.put(COLUMN_ACCOUNT_NO, account.getAccountNo());
@@ -191,12 +185,12 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
            contentValues.put(COLUMN_ACCOUNT_HOLDER_NAME, account.getAccountHolderName());
            contentValues.put(COLUMN_BALANCE, account.getBalance());
 
-           // 3. insert
+           // insert
            db.insert(TABLE_NAME, // table
                    null, //nullColumnHack
                    contentValues); // key/value -> keys = column names/ values = column values
 
-           // 4. close
+           //  close
            db.close();
        }
        catch (SQLiteException ex){
@@ -209,17 +203,17 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
 
       try {
 
-          // 1. get reference to writable DB
+          //  get reference to writable DB
           SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-          // 2. delete
+          //  delete
           db.delete(TABLE_NAME, //table name
                   COLUMN_ACCOUNT_NO +" = ?",  // selections
                   new String[] { String.valueOf(accountNo)}); //selections args
-          // 3. close
+          //  close
           db.close();
 
-          //log
+          // log
           Log.d("removeAccount", accountNo);
         }
         catch (SQLiteException e){
@@ -265,7 +259,7 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
             // close
             db.close();
 
-            //log
+            // log
             Log.d("updateBalance", account.toString());
 
         }
@@ -275,7 +269,7 @@ public class PersistentAccountDAO  implements AccountDAO, Serializable {
     }
 
     private Account convertResultSetToAccount (Cursor cursor){
-        return new Account(cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), cursor.getString(cursor.getColumnIndex(COLUMN_BANK_NAME)), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_HOLDER_NAME)), cursor.getColumnIndex(COLUMN_BALANCE));
+        return new Account(cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), cursor.getString(cursor.getColumnIndex(COLUMN_BANK_NAME)), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_HOLDER_NAME)), cursor.getDouble(cursor.getColumnIndex(COLUMN_BALANCE)));
 
     }
 

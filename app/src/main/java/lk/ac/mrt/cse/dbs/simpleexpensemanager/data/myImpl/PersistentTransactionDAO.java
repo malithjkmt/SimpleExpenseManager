@@ -17,11 +17,9 @@
 package lk.ac.mrt.cse.dbs.simpleexpensemanager.data.myImpl;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteException;
-import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 import java.io.Serializable;
@@ -29,13 +27,11 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.exception.DbHelper;
+import lk.ac.mrt.cse.dbs.simpleexpensemanager.control.DbHelper;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.TransactionDAO;
-import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Account;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.ExpenseType;
 import lk.ac.mrt.cse.dbs.simpleexpensemanager.data.model.Transaction;
 
@@ -64,10 +60,10 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
     public void logTransaction(Date date, String accountNo, ExpenseType expenseType, double amount) {
 
         try {
-            // 1. get reference to writable DB
+            //  get reference to writable DB
             SQLiteDatabase db = dbHelper.getWritableDatabase();
 
-            // 2. create ContentValues to add key "column"/value
+            // create ContentValues to add key "column"/value
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(COLUMN_ACCOUNT_NO, accountNo);
@@ -75,11 +71,11 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
             contentValues.put(COLUMN_EXPENSE_TYPE, String.valueOf(expenseType) );
             contentValues.put(COLUMN_AMOUNT, amount );
 
-            // 3. insert
+            // insert
             db.insert(TABLE_NAME, // table
                     null, //nullColumnHack
                     contentValues); // key/value -> keys = column names/ values = column values
-            // 4. close
+            //  close
             db.close();
         }
         catch (SQLiteException ex){
@@ -91,15 +87,15 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
     public List<Transaction> getAllTransactionLogs() {
         ArrayList<Transaction> array_list = new ArrayList<>();
         
-        // 1. build the query
+        //  build the query
         String query = "select * from " + TABLE_NAME;
         
         try {
-            // 2. get reference to readable DB
+            //  get reference to readable DB
             SQLiteDatabase db = dbHelper.getReadableDatabase();
             Cursor cursor  = db.rawQuery(query, null);
 
-            // 3. go over each row, get the transaction and add it to list
+            //  go over each row, get the transaction and add it to list
             cursor.moveToFirst();
 
             while (!cursor.isAfterLast()) {
@@ -107,7 +103,7 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
                 cursor.moveToNext();
             }
 
-            //for logging
+            // for logging
             Log.d("getAllTransactionLogs()", array_list.toString());
 
             // close the Cursor
@@ -176,7 +172,7 @@ public class PersistentTransactionDAO  implements TransactionDAO, Serializable {
 
     private Transaction convertResultSetToTransaction (Cursor cursor){
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH);
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss zzz yyyy", Locale.ENGLISH); // important!
 
         try {
             return new Transaction(dateFormat.parse(cursor.getString(cursor.getColumnIndex(COLUMN_DATE))), cursor.getString(cursor.getColumnIndex(COLUMN_ACCOUNT_NO)), ExpenseType.valueOf(cursor.getString(cursor.getColumnIndex(COLUMN_EXPENSE_TYPE))), cursor.getDouble(cursor.getColumnIndex(COLUMN_AMOUNT)));
